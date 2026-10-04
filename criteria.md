@@ -91,8 +91,8 @@ what the model says. A multi-paragraph caption is a real failure.
 ## 5. Your choice
 
 Given a query that matches at least one listing, but the wardrobe passed in is the empty_wardrobe
-template (items: []), the agent does not crash and instead returns a message noting no wardrobe
-is on file — in 5 of 5 tries.
+template (items: []), suggest_outfit returns a non-empty string of general styling advice, and the
+agent continue to create_fit_card as normal - 5 of 5 tries
 
 <!-- YOU WRITE THIS ONE TOO.
 
@@ -103,7 +103,7 @@ is on file — in 5 of 5 tries.
 
 
 
-**Why this target:** The agent can handle it cleanly every time rather than throwing an error.
+**Why this target:** the tool has to produce something usable every time rather than failing silently or stalling the loop.
 
 
 
