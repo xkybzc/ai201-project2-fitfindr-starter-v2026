@@ -39,7 +39,12 @@
 
 ## What This Does
 
-<!-- Three or four sentences: what a user asks for, and what they get back. -->
+FitFindr takes a plain-language request like "vintage graphic tee under $30"
+and pulls out the item, size, and price ceiling. It searches the listings
+data, picks the best match, and suggests outfits using pieces from the user's
+wardrobe. It then writes a short caption for the find. If nothing
+matches, it stops early and tells the user what to change (price, size, or
+wording) instead of continuing with nothing.
 
 
 
@@ -57,21 +62,21 @@
      on, and if you don't decide it here you'll discover it as a crash in
      Milestone 5. -->
 
-### `search_listings`
+### search_listings
 
 - **What it does:** searches through listing.json for listings whose title, description, or style_tags loosely match the text.
 - **Inputs:** description(str), size(str), max_price(float)
 - **Returns:** a list of dict, each with id, title, price, size, category, colors, style_tags, platform
 - **When it has nothing:** return an empty list []
 
-### `suggest_outfit`
+### suggest_outfit
 
 - **What it does:** Takes one listing and the user's wardrobe, returns 1–3 outfit pairings from wardrobe items whose category, colors, or style_tags complement the new item.
 - **Inputs:** new_item (dict), wardrobe (list of wardrobe item dicts)
 - **Returns:** a string with one or two outfit suggestions.
 - **When it has nothing:** if the wardrobe has no items, returns general styling advice (a non-empty string) instead of failing.
 
-### `create_fit_card`
+### create_fit_card
 
 - **What it does:** Calls the model to write a short, postable caption for the outfit.
 - **Inputs:** outfit (str), new_item (dict)
@@ -93,13 +98,16 @@
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
 
-**Branch rule:** If `suggest_outfit` returns an empty list, put a message in the session naming the item found but noting no wardrobe match was available, and stop. Otherwise, take the first outfit and go to `create_fit_card`.
+**Branch rule:** If search_listings returns an empty list, put a message in
+`session["error"] naming what the user could change and stop. Otherwise, take
+the first result and go to suggest_outfit.
 
-**Where it lives:** `agent.py::run_agent`
+**Where it lives:** agent.py::run_agent
 
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
+**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->Regex inside run_agent, no model call.
 
-**What moves through the session:** <!-- which fields, in what order -->
+**What moves through the session:** <!-- which fields, in what order -->parsed → search_results → selected_item →
+outfit_suggestion → fit_card. Each result is written to the session and read back for the next step.
 
 ---
 
@@ -190,15 +198,17 @@ Scored these vintage Levi's 501 jeans for just $38.00 on depop! They’re the ab
 
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I gave Claude the field names from my listings data and asked it to draft my three tool specs for the Tool Inventory.
+- *What came back:* It said suggest_outfit returns a list of outfit dicts and returns [] when the wardrobe is empty.
+- *What I changed:* When I opened tools.py, the starter said suggest_outfit returns a string and gives general styling advice when the
+  wardrobe is empty. So I changed my empty-wardrobe criterion to match.
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* I asked Claude to write `create_fit_card`.
+- *What came back:* When I ran the tool three times on the same item, I also got identical output each time.
+- *What I changed:* The identical outputs came from the cache, so I set `AI201_CACHE=0` and got three
+  different captions.
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
