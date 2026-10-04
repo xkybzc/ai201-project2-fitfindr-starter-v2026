@@ -12,7 +12,7 @@ Build and test your three tools in `tools.py` first. Then come here.
 
     python agent.py          runs both example paths below
 """
-
+import re
 import config
 import trace
 from tools import search_listings, suggest_outfit, create_fit_card
@@ -44,6 +44,9 @@ def new_session(query: str, wardrobe: dict) -> dict:
         "outfit_suggestion": None,   # what suggest_outfit returned
         "fit_card": None,            # what create_fit_card returned
         "error": None,               # set when the run ended early
+        "search_results": [],        # everything search_listings returned
+        "searched": False,           # True once search_listings has run
+        "selected_item": None,       # the one you chose - goes into suggest_outfit
     }
 
 
@@ -106,11 +109,65 @@ def run_agent(query: str, wardrobe: dict) -> dict:
         than a stack trace. The import is already at the top of this file.
     """
     session = new_session(query, wardrobe)
+    count = 0
+    while True:
+        count += 1
+        trace.check_iterations(count)
+        if not session["parsed"]:
+            text = session["query"]
+            price_re = r"(?:(?:under|below|max)\s*\$?|\$)\s*(\d+(?:\.\d+)?)"
+            size_re = r"\bsize\s+(\w+(?:/\w+)?)"
 
-    # TODO: delete these two lines and build the loop.
-    session["error"] = "The planning loop isn't built yet — see the TODO in agent.py."
-    return session
+            price = re.search(price_re, text, re.I)
+            size = re.search(size_re, text, re.I)
 
+            description = re.sub(price_re, " ", text, flags=re.I)
+            description = re.sub(size_re, " ", description, flags=re.I)
+            description = re.sub(r"[^\w\s'-]", " ", description)
+
+            session["parsed"] = {
+                "description": " ".join(description.split()),
+                "size": size.group(1).upper() if size else None,
+                "max_price": float(price.group(1)) if price else None,
+            }
+
+        elif not session["search_results"]:
+            p = session["parsed"]
+            session["search_results"] = search_listings(
+                p["description"], p["size"], p["max_price"]
+            )
+            if not session["search_results"]:
+                tips = []
+                if p["max_price"] is not None:
+                    tips.append("raising your price limit")
+                if p["size"]:
+                    tips.append("trying a different size or leaving size out")
+                tips.append("using simpler, more general words")
+
+                if len(tips) == 1:
+                    advice = tips[0]
+                else:
+                    advice = ", ".join(tips[:-1]) + ", or " + tips[-1]
+                session["error"] = (
+                    f"No listings matched '{p['description']}'. Try {advice}."
+                )
+                return session
+
+        elif session["selected_item"] is None:
+            session["selected_item"] = session["search_results"][0]
+
+        elif session["outfit_suggestion"] is None:
+            session["outfit_suggestion"] = suggest_outfit(
+                session["selected_item"], session["wardrobe"]
+            )
+
+        elif session["fit_card"] is None:
+            session["fit_card"] = create_fit_card(
+                session["outfit_suggestion"], session["selected_item"]
+            )
+
+        else:
+            return session
 
 # ── running it directly ───────────────────────────────────────────────────────
 
