@@ -47,24 +47,6 @@
 
 ## Tool Inventory
 
-**searching_listings(description, size, max_price)**
-- What it does: searches through listing.json for listings whose title, description, or style_tags loosely match the text.
-- Input: description(str), size(str), max_price(float)
-- Returns: a list of dict, each with id, title, price, size, category, colors, style_tags, platform
-- Empty case: return an empty list []
-
-**suggest_outfit(new_item, wardrobe)
-- What it does: Takes one listing and the user's wardrobe, returns 1–3 outfit pairings from wardrobe items whose category, colors, or style_tags complement the new item.
-- Inputs: new_item (dict), wardrobe (list of wardrobe item dicts)
-- Returns: a list of outfit dicts, each naming the new item plus 1–3 wardrobe item ids/names and a short reason why they pair
-- Empty case: if the wardrobe is empty or nothing pairs well, returns an empty list []
-
-**create_fit_card(outfit, new_item)**
-- What it does: Calls the model to write a short, postable caption for the outfit.
-- Inputs: outfit (one outfit dict from suggest_outfit), new_item (dict)
-- Returns: a string
-- Empty case: if outfit is empty/None, returns None rather than calling the model on nothing
-
 <!-- Four lines per tool. This is worth 2 points and it's the single most
      common place students lose them.
 

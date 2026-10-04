@@ -24,7 +24,7 @@ data earns credit; *"80% seemed reasonable"* does not.
 Given a query that matches at least one listing, the agent completes all three
 tool calls and returns a fit card — in at least 4 of 5 tries.
 
-**Why this target:**
+**Why this target:** My search is a plain keyword match and some phrasings will miss.
 <!-- Why 4 of 5 and not 5 of 5? Something about your search, probably —
      "my search is a plain keyword match and some phrasings will miss" is a
      real answer. -->
@@ -36,7 +36,7 @@ tool calls and returns a fit card — in at least 4 of 5 tries.
 Given a query that matches no listings, the agent stops before calling
 `suggest_outfit` and returns a message naming what to change — 5 of 5 tries.
 
-**Why this target:**
+**Why this target:** This branch is decided entirely by code, not model call, so it can't be failed.
 <!-- Why is 5 of 5 reasonable here when criterion 1 isn't? What's different
      about this path? -->
 
@@ -44,6 +44,8 @@ Given a query that matches no listings, the agent stops before calling
 
 ## 3. Something about state
 
+Given a query that returns at least one listing, session["selected_item"] at the end of the run has the same
+'id' as the item passed as the 'new_item' into suggest_outfit - 5 of 5 tries.
 <!-- YOU WRITE THIS ONE.
 
      How would you know that the item your search found is the same item the
@@ -56,13 +58,15 @@ Given a query that matches no listings, the agent stops before calling
 
 
 
-**Why this target:**
+**Why this target:** Passing item through session is plain assignment, so the id should never drift.
 
 
 
 ---
 
 ## 4. Something about the fit card
+
+Given any outfit and listing, create_fit_card returns a string under 280 characters - 5 of 5 tries
 
 <!-- YOU WRITE THIS ONE.
 
@@ -77,13 +81,18 @@ Given a query that matches no listings, the agent stops before calling
 
 
 
-**Why this target:**
+**Why this target:** Wording varies since it's model-generated, but length is checkable regardless of
+what the model says. A multi-paragraph caption is a real failure.
 
 
 
 ---
 
 ## 5. Your choice
+
+Given a query that matches at least one listing, but the wardrobe passed in is the empty_wardrobe
+template (items: []), the agent does not crash and instead returns a message noting no wardrobe
+is on file — in 5 of 5 tries.
 
 <!-- YOU WRITE THIS ONE TOO.
 
@@ -94,7 +103,7 @@ Given a query that matches no listings, the agent stops before calling
 
 
 
-**Why this target:**
+**Why this target:** The agent can handle it cleanly every time rather than throwing an error.
 
 
 
