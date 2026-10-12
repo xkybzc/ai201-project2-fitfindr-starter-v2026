@@ -109,69 +109,97 @@ def run_agent(query: str, wardrobe: dict) -> dict:
       • A handler for ModelUnavailable, so a bad key produces a message rather
         than a stack trace. The import is already at the top of this file.
     """
+    trace.start_trace()
     session = new_session(query, wardrobe)
-    count = 0
-    while True:
-        count += 1
-        trace.check_iterations(count)
-        if not session["parsed"]:
-            text = session["query"]
-            price_re = r"(?:(?:under|below|max)\s*\$?|\$)\s*(\d+(?:\.\d+)?)"
-            size_re = r"\bsize\s+(\w+(?:/\w+)?)"
 
-            price = re.search(price_re, text, re.I)
-            size = re.search(size_re, text, re.I)
+    try:
+        count = 0
+        while True:
+            count += 1
+            trace.check_iterations(count)
 
-            description = re.sub(price_re, " ", text, flags=re.I)
-            description = re.sub(size_re, " ", description, flags=re.I)
-            description = re.sub(r"[^\w\s'-]", " ", description)
+            if not session["parsed"]:
+                text = session["query"]
+                price_re = r"(?:(?:under|below|max)\s*\$?|\$)\s*(\d+(?:\.\d+)?)"
+                size_re = r"\bsize\s+(\w+(?:/\w+)?)"
 
-            session["parsed"] = {
-                "description": " ".join(description.split()),
-                "size": size.group(1).upper() if size else None,
-                "max_price": float(price.group(1)) if price else None,
-            }
+                price = re.search(price_re, text, re.I)
+                size = re.search(size_re, text, re.I)
 
-        elif not session["search_results"]:
-            p = session["parsed"]
-            args = {"description": p["description"]}
-            if p["size"] is not None:
-                args["size"] = p["size"]
-            if p["max_price"] is not None:
-                args["max_price"] = p["max_price"]
-            session["search_results"] = call_tool("search_listings", args)
-            if not session["search_results"]:
-                tips = []
+                description = re.sub(price_re, " ", text, flags=re.I)
+                description = re.sub(size_re, " ", description, flags=re.I)
+                description = re.sub(r"[^\w\s'-]", " ", description)
+
+                session["parsed"] = {
+                    "description": " ".join(description.split()),
+                    "size": size.group(1).upper() if size else None,
+                    "max_price": float(price.group(1)) if price else None,
+                }
+                trace.step("parse query (regex)", inputs=text,returned=str(session["parsed"]))
+
+            elif not session["search_results"]:
+                p = session["parsed"]
+                args = {"description": p["description"]}
+                if p["size"] is not None:
+                    args["size"] = p["size"]
                 if p["max_price"] is not None:
-                    tips.append("raising your price limit")
-                if p["size"]:
-                    tips.append("trying a different size or leaving size out")
-                tips.append("using simpler, more general words")
+                    args["max_price"] = p["max_price"]
+                session["search_results"] = call_tool("search_listings", args)
 
-                if len(tips) == 1:
-                    advice = tips[0]
-                else:
-                    advice = ", ".join(tips[:-1]) + ", or " + tips[-1]
-                session["error"] = (
-                    f"No listings matched '{p['description']}'. Try {advice}."
+                if not session["search_results"]:
+                    tips = []
+                    if p["max_price"] is not None:
+                        tips.append("raising your price limit")
+                    if p["size"]:
+                        tips.append("trying a different size or leaving size out")
+                    tips.append("using simpler, more general words")
+
+                    if len(tips) == 1:
+                        advice = tips[0]
+                    else:
+                        advice = ", ".join(tips[:-1]) + ", or " + tips[-1]
+                    session["error"] = (
+                        f"No listings matched '{p['description']}'. Try {advice}."
+                    )
+                    trace.step("search_listings (via MCP)", inputs=str(args),
+                            returned=session["search_results"],
+                            note="branch: empty, stopping before suggest_outfit")
+                    return session
+
+                trace.step("search_listings (via MCP)", inputs=str(args),
+                        returned=session["search_results"])
+
+            elif session["selected_item"] is None:
+                session["selected_item"] = session["search_results"][0]
+                trace.step("select first result",
+                        returned=session["selected_item"],
+                        note="stored in session['selected_item']")
+
+            elif session["outfit_suggestion"] is None:
+                item = session["selected_item"]
+                n = len(session["wardrobe"].get("items", []))
+                session["outfit_suggestion"] = suggest_outfit(item, session["wardrobe"])
+                trace.step("suggest_outfit",
+                        inputs=f"{item.get('title')} + wardrobe of {n} items",
+                        returned=session["outfit_suggestion"])
+
+            elif session["fit_card"] is None:
+                session["fit_card"] = create_fit_card(
+                    session["outfit_suggestion"], session["selected_item"]
                 )
+                trace.step("create_fit_card",
+                        inputs="outfit text + selected item",
+                        returned=session["fit_card"])
+
+            else:
                 return session
 
-        elif session["selected_item"] is None:
-            session["selected_item"] = session["search_results"][0]
-
-        elif session["outfit_suggestion"] is None:
-            session["outfit_suggestion"] = suggest_outfit(
-                session["selected_item"], session["wardrobe"]
-            )
-
-        elif session["fit_card"] is None:
-            session["fit_card"] = create_fit_card(
-                session["outfit_suggestion"], session["selected_item"]
-            )
-
-        else:
-            return session
+    except ModelUnavailable as exc:
+        title = (session["selected_item"] or {}).get("title")
+        found = f"I found the {title}, but the" if title else "The"
+        session["error"] = f"{found} outfit and caption couldn't be written. {exc}"
+        trace.step("model unavailable", note="stopping: " + session["error"])
+        return session
 
 # ── running it directly ───────────────────────────────────────────────────────
 

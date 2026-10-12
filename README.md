@@ -292,16 +292,39 @@ that produced it:
 **Happy path**
 
 ```
-
+[1] parse query (regex)
+      in:  vintage graphic tee under $30
+      out: {'description': 'vintage graphic tee', 'size': None, 'max_price': 30.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'vintage graphic tee', 'max_price': 30.0}
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+[3] select first result
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      →    stored in session['selected_item']
+[4] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print + wardrobe of 10 items
+      out: Here are two outfit suggestions that pair the Y2K butterfly baby tee with pieces already in your wardrobe:  **…
+[5] create_fit_card
+      in:  outfit text + selected item
+      out: Found my new favorite Y2K butterfly baby tee for just $18 on Depop! 🦋✨ Obsessed with styling it baggy jeans or…
 ```
 
 **Empty search**
 
 ```
+[1] parse query (regex)
+      in:  designer ballgown size XXS under $5
+      out: {'description': 'designer ballgown', 'size': 'XXS', 'max_price': 5.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'designer ballgown', 'size': 'XXS', 'max_price': 5.0}
+      out: [] (empty)
+      →    branch: empty, stopping before suggest_outfit
 
+No listings matched 'designer ballgown'. Try raising your price limit, trying a different size or leaving size out, or using simpler, more general words.
 ```
 
-**On the MCP move:** <!-- what changed in your code, and whether anything
+**On the MCP move:** I add 'search_listings' in mcp_server.py and changed 'agent.py::run_agent' to call it through mcp_client.call_tool instead of calling the function directly. An empty search will returned '[]' or 'None' over MCP.
+<!-- what changed in your code, and whether anything
 behaved differently afterwards. If the rewire didn't work, say exactly where it
 broke — the error text and the last thing that worked. That earns the point in
 full. -->
