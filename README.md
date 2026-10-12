@@ -331,15 +331,22 @@ Since this is your first wardrobe item, this versatile light-wash denim jacket s
 
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | A matching query completes all three tools | 4 of 5 | MET (5/5) | A try passed only if the trace showed all five steps and a fit card was returned. |
+| 2 | An impossible query stops before the second tool | 5 of 5 | MET (5/5) | A try passed only if the trace ended at step 2 with no 'suggest_outfit' step and the message named something to change. |
+| 3 | Item in session matches item passed on | 5 of 5 | MET (5/5) | The id in the select step matched the id in the 'suggest_outfit' in every try. |
+| 4 | Fit card is under 280 characters | 5 of 5 | MET (5/5) | I counted the characters in each fit card. In this scenario they ran from 171 to 219. |
+| 5 | Empty wardrobe returns advice and continues | 5 of 5 | MET (5/5) | A try passed only if the trace showed 'wardrobe of 0 items', the advice was non-empty, the run did not stop early, and a fit card was returned. |
 
 **Diagnoses**
 
+I missed no criteria, so there is no failing tool, branch, session value, or
+model output to name, and no pattern to report.
 
+My targets were too easy in places. Criteria 2, 3, and 5 test branches decided
+by plain code, not the model, so 5 of 5 was close to guaranteed. Criterion 3 is
+the weakest. In 'agent.py::run_agent', 'suggest_outfit' receives
+'session["selected_item"]' directly, and the trace reads the id from that same
+value, so the two ids could never differ. It is the one I would tighten.
 
 ---
 
