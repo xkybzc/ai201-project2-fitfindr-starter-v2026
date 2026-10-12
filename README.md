@@ -5,13 +5,13 @@
 > **New to this repo? Read [RUNNING.md](RUNNING.md) first** — setup, every
 > command, and what to do when something breaks.
 >
-> Once `python test.py` passes:
+> Once 'python test.py' passes:
 >
-> ```bash
+> '''bash
 > python app.py listings --full -n 6      # read the data (Milestone 1)
 > python app.py fields                    # what you can filter on
 > python app.py ask 'vintage graphic tee under $30'
-> ```
+> '''
 >
 > All three tools are stubs, so that last command will do nothing useful yet.
 > That's the starting position.
@@ -99,7 +99,7 @@ wording) instead of continuing with nothing.
      function have to be real. -->
 
 **Branch rule:** If search_listings returns an empty list, put a message in
-`session["error"] naming what the user could change and stop. Otherwise, take
+'session["error"] naming what the user could change and stop. Otherwise, take
 the first result and go to suggest_outfit.
 
 **Where it lives:** agent.py::run_agent
@@ -120,10 +120,10 @@ outfit_suggestion → fit_card. Each result is written to the session and read b
 
 **One full query**
 
-```
+'''
 $ python app.py ask "vintage graphic tee under $30"
 
-```
+'''
   Found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
 
   Outfit:   Here are two outfit suggestions combining the new Y2K Butterfly Baby Tee with pieces from your current wardrobe:
@@ -151,15 +151,15 @@ $ python app.py ask "vintage graphic tee under $30"
 
 **The three tools, tested one at a time**
 
-```
+'''
 $ python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
 
-```
+'''
 [{'id': 'lst_002', 'title': 'Y2K Baby Tee — Butterfly Print', 'description': 'Super cute early 2000s baby tee with butterfly graphic. Fitted crop length. Tag says medium but fits like a small.', 'category': 'tops', 'style_tags': ['y2k', 'vintage', 'graphic tee', 'cottagecore'], 'size': 'S/M', 'condition': 'excellent', 'price': 18.0, 'colors': ['white', 'pink', 'purple'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_006', 'title': 'Graphic Tee — 2003 Tour Bootleg Style', 'description': 'Vintage-style bootleg tee with faded graphic. Slightly boxy fit. 100% cotton, soft and worn-in.', 'category': 'tops', 'style_tags': ['graphic tee', 'vintage', 'grunge', 'streetwear', 'band tee'], 'size': 'L', 'condition': 'good', 'price': 24.0, 'colors': ['black'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_017', 'title': 'Mesh Long-Sleeve Top — Black', 'description': 'Sheer black mesh long-sleeve. Great for layering under a graphic tee or over a bralette. Stretchy material, fits true to size.', 'category': 'tops', 'style_tags': ['y2k', 'grunge', 'goth', 'layering'], 'size': 'S/M', 'condition': 'excellent', 'price': 15.0, 'colors': ['black'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_033', 'title': 'Vintage Band Tee — Faded Grey', 'description': 'Faded grey band-style tee with distressed graphic. Crew neck. Fits boxy. Well-loved but no holes or major damage.', 'category': 'tops', 'style_tags': ['vintage', 'grunge', 'band tee', 'graphic tee', 'streetwear'], 'size': 'L', 'condition': 'fair', 'price': 19.0, 'colors': ['grey', 'charcoal'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_011', 'title': 'Low-Rise Cargo Pants — Khaki', 'description': 'Y2K era low-rise cargo pants. Lots of pockets. Khaki color, slightly distressed at the hems. Great for layering with a long tee.', 'category': 'bottoms', 'style_tags': ['y2k', 'cargo', '2000s', 'streetwear'], 'size': 'W29', 'condition': 'fair', 'price': 27.0, 'colors': ['khaki', 'tan'], 'brand': None, 'platform': 'poshmark'}, {'id': 'lst_015', 'title': 'Vintage Graphic Hoodie — Faded Black', 'description': 'Faded black pullover hoodie with barely-visible vintage graphic on the chest. Cozy interior. Some pilling but adds to the worn-in look.', 'category': 'tops', 'style_tags': ['vintage', 'grunge', 'graphic', 'streetwear'], 'size': 'L', 'condition': 'fair', 'price': 26.0, 'colors': ['black', 'charcoal'], 'brand': None, 'platform': 'depop'}]
-```
+'''
 $ python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
 
-```
+'''
 Here are two ways to style the vintage Levi's 501 jeans using pieces already in your wardrobe:
 
 **Outfit 1: Effortless Casual Streetwear**
@@ -179,10 +179,10 @@ Here are two ways to style the vintage Levi's 501 jeans using pieces already in 
 
 *Why it works:* The 501s offer a structured, straighter fit compared to your current baggy jeans, which pairs great with the slouchy volume of the oversized grey crewneck. Tucking in the sweatshirt with the brown leather belt adds a touch of intentional styling, and the black combat boots anchor the outfit with a cool, grunge-infused contrast.
 
-```
+'''
 $ python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
 
-```
+'''
 Scored these vintage Levi's 501 jeans for just $38.00 on depop! They’re the absolute best medium wash. Can't wait to style them with my favorite white sneakers. ✨👖
 
 ---
@@ -205,9 +205,9 @@ Scored these vintage Levi's 501 jeans for just $38.00 on depop! They’re the ab
 
 **Moment 2**
 
-- *What I asked for:* I asked Claude to write `create_fit_card`.
+- *What I asked for:* I asked Claude to write 'create_fit_card'.
 - *What came back:* When I ran the tool three times on the same item, I also got identical output each time.
-- *What I changed:* The identical outputs came from the cache, so I set `AI201_CACHE=0` and got three
+- *What I changed:* The identical outputs came from the cache, so I set 'AI201_CACHE=0' and got three
   different captions.
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
@@ -225,23 +225,89 @@ Scored these vintage Levi's 501 jeans for just $38.00 on depop! They’re the ab
      or FAIL, count the passes, and read that count against your target — a
      row targeting 4 of 5 with three PASS cells is MISSED (3/5).
 
-     `python run_eval.py --label before` runs everything and writes the table
+     'python run_eval.py --label before' runs everything and writes the table
      into results/. Paste it here and fill in the verdicts. -->
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. A matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. An impossible query stops before the second tool | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. Item in session matches item passed on | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. Fit card is under 280 characters | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. Empty wardrobe returns advice and continues | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
 
 **Real output from one try**, pasted as text, naming the file and function
 that produced it:
 
-```
+'''
+**Criterion 1** — produced by 'agent.py::run_agent' (query: 'vintage graphic tee under $30')
 
-```
+'''
+[1] parse query (regex)
+      in:  vintage graphic tee under $30
+      out: {'description': 'vintage graphic tee', 'size': None, 'max_price': 30.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'vintage graphic tee', 'max_price': 30.0}
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+[3] select first result
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      →    stored in session['selected_item'], id lst_002
+[4] suggest_outfit
+      in:  id lst_002: Y2K Baby Tee — Butterfly Print + wardrobe of 10 items
+      out: Here are two outfit suggestions that pair the Y2K butterfly baby tee with items from your current wardrobe:  *…
+[5] create_fit_card
+      in:  outfit text + selected item
+      out: Found my ultimate Y2K vibe with this butterfly baby tee for just $18.0! I can't wait to style it with baggy de…
+'''
+
+**Criterion 2** — produced by 'agent.py::run_agent' (query: 'designer ballgown size XXS under $5')
+
+'''
+[1] parse query (regex)
+      in:  designer ballgown size XXS under $5
+      out: {'description': 'designer ballgown', 'size': 'XXS', 'max_price': 5.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'designer ballgown', 'size': 'XXS', 'max_price': 5.0}
+      out: [] (empty)
+      →    branch: empty, stopping before suggest_outfit
+
+No listings matched 'designer ballgown'. Try raising your price limit, trying a different size or leaving size out, or using simpler, more general words.
+'''
+
+**Criterion 3** — produced by 'agent.py::run_agent' (query: 'silk slip dress in midi length under $40')
+
+'''
+[3] select first result
+      out: 90s Silk Slip Dress — Floral, Midi Length ($30.0, depop)
+      →    stored in session['selected_item'], id lst_013
+[4] suggest_outfit
+      in:  id lst_013: 90s Silk Slip Dress — Floral, Midi Length + wardrobe of 10 items
+      out: Here are two outfit suggestions that seamlessly blend the feminine, 90s vintage vibe of the floral silk slip d…
+'''
+
+**Criterion 4** — produced by 'tools.py::create_fit_card' (query: '90s track jacket in size M', 171 characters)
+
+'''
+Found the ultimate 90s track jacket on Poshmark for just $45! Obsessed with styling this navy and white stripe beauty over baggy denim for effortless streetwear vibes. ✨🏃💨
+'''
+
+**Criterion 5** — produced by 'tools.py::suggest_outfit' and 'agent.py::run_agent' (query: 'denim jacket under $50', empty wardrobe)
+
+'''
+[4] suggest_outfit
+      in:  id lst_007: Denim Jacket — Light Wash, Cropped + wardrobe of 0 items
+      out: Since this is your first wardrobe item, this versatile light-wash denim jacket serves as a great foundational …
+[5] create_fit_card
+      in:  outfit text + selected item
+      out: Scored this adorable cropped light-wash denim jacket for just $42 on Poshmark! It’s the ultimate versatile sta…
+'''
+
+Outfit advice returned:
+
+'''
+Since this is your first wardrobe item, this versatile light-wash denim jacket serves as a great foundational piece that leans easily into both casual streetwear and classic vintage aesthetics. Pair it with high-waisted trousers, skirts, or wide-leg cargo pants to complement the cropped cut and balance your proportions. For layering, it looks effortless thrown over simple fitted tops, cropped tanks, or cozy hoodies.
+'''
+'''
 
 ---
 
@@ -281,7 +347,7 @@ that produced it:
 
 <!-- One full run, printed step by step, with the MCP call visible in it.
 
-     `python app.py ask '...' --trace` once you've added the trace.step()
+     'python app.py ask '...' --trace' once you've added the trace.step()
      calls in Milestone 2.
 
      Worth pasting BOTH the happy path and the empty-search path. The empty
@@ -291,7 +357,7 @@ that produced it:
 
 **Happy path**
 
-```
+'''
 [1] parse query (regex)
       in:  vintage graphic tee under $30
       out: {'description': 'vintage graphic tee', 'size': None, 'max_price': 30.0}
@@ -307,11 +373,11 @@ that produced it:
 [5] create_fit_card
       in:  outfit text + selected item
       out: Found my new favorite Y2K butterfly baby tee for just $18 on Depop! 🦋✨ Obsessed with styling it baggy jeans or…
-```
+'''
 
 **Empty search**
 
-```
+'''
 [1] parse query (regex)
       in:  designer ballgown size XXS under $5
       out: {'description': 'designer ballgown', 'size': 'XXS', 'max_price': 5.0}
@@ -321,7 +387,7 @@ that produced it:
       →    branch: empty, stopping before suggest_outfit
 
 No listings matched 'designer ballgown'. Try raising your price limit, trying a different size or leaving size out, or using simpler, more general words.
-```
+'''
 
 **On the MCP move:** I add 'search_listings' in mcp_server.py and changed 'agent.py::run_agent' to call it through mcp_client.call_tool instead of calling the function directly. An empty search will returned '[]' or 'None' over MCP.
 <!-- what changed in your code, and whether anything
@@ -338,7 +404,7 @@ full. -->
 <!-- What you changed, why your diagnosis pointed at it, and the after-run in
      the same table format. One change, measured properly.
 
-     `python run_eval.py --label after` -->
+     'python run_eval.py --label after' -->
 
 **What I changed:**
 

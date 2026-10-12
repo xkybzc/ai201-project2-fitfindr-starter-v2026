@@ -173,14 +173,14 @@ def run_agent(query: str, wardrobe: dict) -> dict:
                 session["selected_item"] = session["search_results"][0]
                 trace.step("select first result",
                         returned=session["selected_item"],
-                        note="stored in session['selected_item']")
+                        note="stored in session['selected_item'], id " + str(session["selected_item"].get("id")))
 
             elif session["outfit_suggestion"] is None:
                 item = session["selected_item"]
                 n = len(session["wardrobe"].get("items", []))
                 session["outfit_suggestion"] = suggest_outfit(item, session["wardrobe"])
                 trace.step("suggest_outfit",
-                        inputs=f"{item.get('title')} + wardrobe of {n} items",
+                        inputs=f"id {item.get('id')}: {item.get('title')} + wardrobe of {n} items",
                         returned=session["outfit_suggestion"])
 
             elif session["fit_card"] is None:

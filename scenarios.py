@@ -29,11 +29,22 @@ SCENARIOS = [
         "criterion": 2,
     },
     {
-        # A user with nothing saved. One of unit 4's three failure modes.
-        "name": "empty wardrobe",
+        "name": "Item in session matches item passed on",
+        "query": "silk slip dress in midi length under $40",
+        "wardrobe": "example",
+        "criterion": 3,
+    },
+    {
+        "name": "Fit card is under 280 characters",
+        "query": "90s track jacket in size M",
+        "wardrobe": "example",
+        "criterion": 4,
+    },
+    {
+        "name": "Empty wardrobe returns advice and continues",
         "query": "denim jacket under $50",
         "wardrobe": "empty",
-        "criterion": None,
+        "criterion": 5,
     },
     # TODO: add what your criteria 3, 4 and 5 need.
     #
