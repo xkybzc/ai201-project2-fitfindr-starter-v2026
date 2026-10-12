@@ -17,6 +17,7 @@ import config
 import trace
 from tools import search_listings, suggest_outfit, create_fit_card
 from generate import ModelUnavailable
+from mcp_client import call_tool
 
 
 # ── session state ─────────────────────────────────────────────────────────────
@@ -133,9 +134,12 @@ def run_agent(query: str, wardrobe: dict) -> dict:
 
         elif not session["search_results"]:
             p = session["parsed"]
-            session["search_results"] = search_listings(
-                p["description"], p["size"], p["max_price"]
-            )
+            args = {"description": p["description"]}
+            if p["size"] is not None:
+                args["size"] = p["size"]
+            if p["max_price"] is not None:
+                args["max_price"] = p["max_price"]
+            session["search_results"] = call_tool("search_listings", args)
             if not session["search_results"]:
                 tips = []
                 if p["max_price"] is not None:
