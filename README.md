@@ -413,22 +413,99 @@ full. -->
 
      'python run_eval.py --label after' -->
 
-**What I changed:**
+**What I changed:** I added a second branch in 'agent.py::run_agent'. After
+'create_fit_card' returns, the loop checks the length. If the fit card is over
+280 characters, it trims the card to the last complete sentence that fits and
+records a 'fit card too long' step in the trace. Otherwise it returns the card
+as is.
 
-**Which failure it was meant to fix:**
+**Which failure it was meant to fix:** None of my criteria were missed, so
+there was no failure to fix.
 
 ### Run Log — After
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. A matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. An impossible query stops before the second tool | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. Item in session matches item passed on | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. Fit card is under 280 characters | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. Empty wardrobe returns advice and continues | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+
+**Criterion 1** — produced by 'agent.py::run_agent' (query: 'vintage graphic tee under $30')
+
+'''
+[1] parse query (regex)
+      in:  vintage graphic tee under $30
+      out: {'description': 'vintage graphic tee', 'size': None, 'max_price': 30.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'vintage graphic tee', 'max_price': 30.0}
+      out: 10 items: Y2K Baby Tee — Butterfly Print, Graphic Tee — 2003 Tour Bootleg Style, Vintage Band Tee — Faded Grey … +7 more
+[3] select first result
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+      →    stored in session['selected_item'], id lst_002
+[4] suggest_outfit
+      in:  id lst_002: Y2K Baby Tee — Butterfly Print + wardrobe of 10 items
+      out: Here are two outfit suggestions that pair the Y2K butterfly baby tee with pieces already in the wardrobe:  ###…
+[5] create_fit_card
+      in:  outfit text + selected item
+      out: Found this precious Y2K baby tee with the cutest butterfly print for just $18 on Depop! 🦋✨ Obsessed with styli…
+'''
+
+**Criterion 2** — produced by 'agent.py::run_agent' (query: 'designer ballgown size XXS under $5')
+
+'''
+[1] parse query (regex)
+      in:  designer ballgown size XXS under $5
+      out: {'description': 'designer ballgown', 'size': 'XXS', 'max_price': 5.0}
+[2] search_listings (via MCP)
+      in:  {'description': 'designer ballgown', 'size': 'XXS', 'max_price': 5.0}
+      out: [] (empty)
+      →    branch: empty, stopping before suggest_outfit
+
+No listings matched 'designer ballgown'. Try raising your price limit, trying a different size or leaving size out, or using simpler, more general words.
+'''
+
+**Criterion 3** — produced by 'agent.py::run_agent' (query: 'silk slip dress in midi length under $40')
+
+'''
+[3] select first result
+      out: 90s Silk Slip Dress — Floral, Midi Length ($30.0, depop)
+      →    stored in session['selected_item'], id lst_013
+[4] suggest_outfit
+      in:  id lst_013: 90s Silk Slip Dress — Floral, Midi Length + wardrobe of 10 items
+      out: Here are two outfit suggestions that seamlessly blend the feminine, 90s aesthetic of the silk slip dress with …
+'''
+
+**Criterion 4** — produced by 'tools.py::create_fit_card' (query: '90s track jacket in size M', 222 characters)
+
+'''
+Scored this ultimate 90s navy/white track jacket for just $45 on Poshmark! It's giving off-duty model vibes whether I style it with baggy denim or wide-leg khakis. Grab it before I change my mind and keep it for myself! 👟✨
+'''
+
+**Criterion 5** — produced by 'tools.py::suggest_outfit' and 'agent.py::run_agent' (query: 'denim jacket under $50', empty wardrobe)
+
+'''
+[4] suggest_outfit
+      in:  id lst_007: Denim Jacket — Light Wash, Cropped + wardrobe of 0 items
+      out: This versatile cropped denim jacket pairs effortlessly with high-waisted bottoms like wide-leg trousers, maxi …
+[5] create_fit_card
+      in:  outfit text + selected item
+      out: Obsessed with this light wash cropped denim jacket I just snagged on Poshmark for $42! 😍 It's about to be my g…
+'''
+
+Advice returned:
+
+'''
+This versatile cropped denim jacket pairs effortlessly with high-waisted bottoms like wide-leg trousers, maxi skirts, or high-rise jeans to balance the shorter hemline. For a casual streetwear vibe, layer it over a simple cropped white tee, a ribbed tank, or a cozy oversized hoodie. Finish the look with classic sneakers, chunky loafers, or ankle boots to elevate the vintage aesthetic.
+'''
 
 **Did it help, and how do I know:**
-
+All five criteria were MET in both runs, and the new branch never fired
+in the after run, because none of the 25 fit cards was over 280 characters.
+The longest card was 277 characters before and 253 after. That difference is
+ordinary variation in the model's wording, not the branch, since nothing was
+trimmed.
 <!-- If it made things worse, say that. Honestly reported, that earns full
      credit and is more interesting than one that worked. -->
 

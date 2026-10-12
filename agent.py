@@ -19,6 +19,8 @@ from tools import search_listings, suggest_outfit, create_fit_card
 from generate import ModelUnavailable
 from mcp_client import call_tool
 
+FIT_CARD_LIMIT = 280
+
 
 # ── session state ─────────────────────────────────────────────────────────────
 
@@ -190,7 +192,16 @@ def run_agent(query: str, wardrobe: dict) -> dict:
                 trace.step("create_fit_card",
                         inputs="outfit text + selected item",
                         returned=session["fit_card"])
+            elif len(session["fit_card"]) > FIT_CARD_LIMIT:
 
+                too_long = len(session["fit_card"])
+                text = session["fit_card"][:FIT_CARD_LIMIT]
+                ends = [m.end() for m in re.finditer(r"[.!?](?=\s|$)", text)]
+                session["fit_card"] = text[: ends[-1]] if ends else text.rstrip()
+                trace.step("fit card too long",
+                        inputs=f"{too_long} chars (limit {FIT_CARD_LIMIT})",
+                        returned=session["fit_card"],
+                        note="branch: over limit, trimmed to last full sentence")
             else:
                 return session
 
