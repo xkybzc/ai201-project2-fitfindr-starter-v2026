@@ -207,8 +207,28 @@ Scored these vintage Levi's 501 jeans for just $38.00 on depop! They’re the ab
 
 - *What I asked for:* I asked Claude to write 'create_fit_card'.
 - *What came back:* When I ran the tool three times on the same item, I also got identical output each time.
-- *What I changed:* The identical outputs came from the cache, so I set 'AI201_CACHE=0' and got three
-  different captions.
+- *What I changed:* The identical outputs came from the cache, so I set 'AI201_CACHE=0' and got three different captions.
+
+**Moment 3**
+
+- *What I asked for:* Claude gave me a query to test the model-unavailable
+  handler with a bad key in `.env`.
+- *What came back:* The agent ran normally and printed `0 model calls this
+  session, 2 served from cache`.
+- *What I changed:* I turned the cache off with `set AI201_CACHE=0`, typed
+  with no spaces around the `=` (my first attempt had spaces and did
+  nothing), and reran so the model was actually called.
+
+**Moment 4**
+
+- *What I asked for:* I asked Claude to check my run log against my criteria.
+- *What came back:* It counted fit card lengths with a script and marked
+  every criterion MET. It also pointed out that criterion 3 could not fail,
+  because the trace reads the id from the same session value that was passed
+  on.
+- *What I changed:* I did not call criterion 3 a clean pass. I wrote it up in
+  Verdicts and Diagnoses as a target that was too easy, and named it as the
+  one I would tighten.
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
@@ -396,7 +416,7 @@ value, so the two ids could never differ. It is the one I would tighten.
 No listings matched 'designer ballgown'. Try raising your price limit, trying a different size or leaving size out, or using simpler, more general words.
 '''
 
-**On the MCP move:** I add 'search_listings' in mcp_server.py and changed 'agent.py::run_agent' to call it through mcp_client.call_tool instead of calling the function directly. An empty search will returned '[]' or 'None' over MCP.
+**On the MCP move:** I add 'search_listings' in mcp_server.py and changed 'agent.py::run_agent' to call it through mcp_client.call_tool instead of calling the function directly. Inputs that are `None` are left out of the call. The other two tools still run directly. The loop behaved the same: an impossible query still came back as an empty list, and the trace shows `[] (empty)` for the MCP call, so the branch still fired. Each call is slower because it starts the server every time.
 <!-- what changed in your code, and whether anything
 behaved differently afterwards. If the rewire didn't work, say exactly where it
 broke — the error text and the last thing that worked. That earns the point in
@@ -518,7 +538,7 @@ trimmed.
 <!-- For each criterion still missed: what you'd do, and why you stopped where
      you did. "I ran out of time" is fine if it's true. Pretending nothing is
      left is not. -->
-
+No criterion was missed in either run, so nothing is "still missed."
 
 
 <!-- ═════════════════════════════════════════════════════════════════════
